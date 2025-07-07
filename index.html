@@ -148,6 +148,28 @@
         gap: 10px;
       }
     }
+    
+textarea#userInput {
+  width: 90%;
+  max-width: 900px;
+  font-size: 16px;
+  padding: 12px;
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  resize: none;
+  min-height: 60px;
+  background: #fff;
+  color: #000;
+  transition: background 0.3s, color 0.3s;
+}
+body.night textarea#userInput {
+  background: #3a3a3c;
+  color: #fff;
+  border: 1px solid #888;
+}
+
+    
   </style>
 </head>
 <body class="day">
@@ -193,6 +215,8 @@
 <div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
 <div id="answer" class="card" style="font-size:32px;"></div>
 
+<textarea id="userInput" placeholder="Type your answer here..." oninput="autoResize(this)"></textarea>
+  
 <div class="button-row">
   <button onclick="toggleAnswer()">Show/Hide Answer</button>
 </div>
@@ -277,6 +301,12 @@ function generateQA() {
   startTimer(12 * 60);
 }
 
+  function autoResize(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
+  
 function toggleAnswer() {
   const answer = document.getElementById('answer');
   answer.style.display = (answer.style.display === 'none') ? 'block' : 'none';
