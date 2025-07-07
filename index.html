@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Bar Quamto Q&A</title>
-  <style> * {
+  <style>
+    * {
       box-sizing: border-box;
     }
 
@@ -94,13 +95,16 @@
 </head>
 <body>
 
-<h1>Bar Quamto Random Q&A</h1>
 <div id="timer">⏳ 12:00</div>
-<div id="question">Press "Generate" to start</div>
-<div id="answer"></div>
+<h1>Bar Quamto Random Q&A</h1>
 
-<button onclick="generateQA()">Generate</button>
-<button onclick="toggleAnswer()">Show/Hide Answer</button>
+<div id="question" class="card">Press "Generate" to start</div>
+<div id="answer" class="card"></div>
+
+<div class="button-row">
+  <button onclick="generateQA()">Generate</button>
+  <button onclick="toggleAnswer()">Show/Hide Answer</button>
+</div>
 
 <script>
 const sheetID = '1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw';
@@ -135,7 +139,7 @@ function generateQA() {
     return;
   }
 
-  if (usedIndices.size === allData.length) {
+  if (usedIndices.size >= allData.length) {
     alert("All questions used! Resetting...");
     usedIndices.clear();
   }
@@ -151,7 +155,7 @@ function generateQA() {
   document.getElementById('answer').textContent = item.answer;
   document.getElementById('answer').style.display = 'none';
 
-  startTimer(12 * 60); // 12 minutes
+  startTimer(12 * 60);
 }
 
 function toggleAnswer() {
