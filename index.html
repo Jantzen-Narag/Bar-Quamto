@@ -50,15 +50,12 @@
     let used = new Set();
     let countdown, timeLeft = 720; // 12 minutes = 720 seconds
 
-    function init() {
-      Tabletop.init({
-        key: 'https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/pubhtml',
-        simpleSheet: true,
-        callback: function(sheetData) {
-          data = sheetData;
-        }
-      });
-    }
+    Tabletop.init({
+  key: 'https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/pubhtml',
+  callback: showQA,
+  simpleSheet: true
+});
+
 
     function generateQA() {
       if (data.length === 0) return;
