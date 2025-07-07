@@ -11,24 +11,32 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f6f9;
-      color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 30px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.day {
+      background: #f4f6f9;
+      color: #222;
+    }
+
+    body.night {
+      background: rgb(142, 142, 147);
+      color: #f9f9f9;
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       font-size: 36px;
-      color: #333;
     }
 
     #counter {
       margin-bottom: 20px;
-      font-size: 20px;
-      color: #444;
+      font-size: 18px;
+      color: inherit;
     }
 
     #timer {
@@ -52,9 +60,13 @@
       max-width: 900px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       text-align: justify;
-      font-size: 32px;
-      line-height: 1.6;
       white-space: pre-wrap;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.night .card {
+      background: #2c2c2e;
+      color: #f9f9f9;
     }
 
     #question {
@@ -66,19 +78,24 @@
       color: #2e7d32;
     }
 
+    body.night #answer {
+      color: #7cff7c;
+    }
+
     .button-row {
       margin-top: 30px;
       display: flex;
       justify-content: center;
-      gap: 40px;
+      flex-wrap: wrap;
+      gap: 30px;
     }
 
-    button {
+    button, select {
       background-color: #1976d2;
       color: white;
       border: none;
-      padding: 14px 28px;
-      font-size: 18px;
+      padding: 12px 24px;
+      font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.2s;
@@ -88,35 +105,66 @@
       background-color: #1565c0;
     }
 
-    @media (max-width: 600px) {
-      .card {
-        font-size: 24px;
-        padding: 20px;
-      }
+    .controls {
+      margin-top: 25px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
 
+    label {
+      font-size: 14px;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 600px) {
       h1 {
         font-size: 28px;
       }
 
-      .button-row {
+      .controls, .button-row {
         flex-direction: column;
-        gap: 16px;
+        gap: 15px;
       }
     }
   </style>
 </head>
-<body>
+<body class="day">
 
 <div id="timer">⏳ 12:00</div>
 <h1>Bar Quamto Random Q&A</h1>
 <div id="counter">Loading questions...</div>
 
-<div id="question" class="card">Press "Generate" to start</div>
-<div id="answer" class="card"></div>
+<div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
+<div id="answer" class="card" style="font-size:32px;"></div>
 
 <div class="button-row">
   <button onclick="generateQA()">Generate</button>
   <button onclick="toggleAnswer()">Show/Hide Answer</button>
+</div>
+
+<div class="controls">
+  <div>
+    <label for="fontSize">Font Size:</label>
+    <select id="fontSize" onchange="updateFontSize(this.value)">
+      <option value="24">24px</option>
+      <option value="28">28px</option>
+      <option value="32" selected>32px</option>
+      <option value="36">36px</option>
+      <option value="40">40px</option>
+      <option value="48">48px</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="modeToggle">Mode:</label>
+    <select id="modeToggle" onchange="toggleMode(this.value)">
+      <option value="day" selected>Day</option>
+      <option value="night">Night</option>
+    </select>
+  </div>
 </div>
 
 <script>
@@ -125,7 +173,7 @@ const sheetURL = `https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_va
 
 let allData = [];
 let usedIndices = new Set();
-let timerInterval;
+let timerInterval = null;
 
 async function fetchSheetData() {
   try {
@@ -139,12 +187,11 @@ async function fetchSheetData() {
       answer: r.c[1]?.v || ''
     })).filter(q => q.question && q.answer);
 
-    // Set initial counter
     document.getElementById('counter').textContent =
       `Questions remaining: ${allData.length} of ${allData.length}`;
 
   } catch (e) {
-    alert("Failed to load Google Sheet");
+    alert("Failed to load Google Sheet.");
     console.error(e);
   }
 }
@@ -171,7 +218,6 @@ function generateQA() {
   document.getElementById('answer').textContent = item.answer;
   document.getElementById('answer').style.display = 'none';
 
-  // Update counter
   document.getElementById('counter').textContent =
     `Questions remaining: ${allData.length - usedIndices.size} of ${allData.length}`;
 
@@ -198,6 +244,15 @@ function startTimer(seconds) {
 
   update();
   timerInterval = setInterval(update, 1000);
+}
+
+function updateFontSize(size) {
+  document.getElementById('question').style.fontSize = size + 'px';
+  document.getElementById('answer').style.fontSize = size + 'px';
+}
+
+function toggleMode(mode) {
+  document.body.className = mode;
 }
 
 window.onload = fetchSheetData;
