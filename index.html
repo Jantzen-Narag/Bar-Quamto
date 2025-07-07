@@ -27,14 +27,21 @@
       position: fixed;
       top: 20px;
       left: 20px;
+      right: 20px;
       display: flex;
-      flex-wrap: wrap;
+      justify-content: space-between;
       align-items: center;
       gap: 20px;
       background: rgba(0,0,0,0.05);
       padding: 10px 20px;
       border-radius: 12px;
       z-index: 1000;
+    }
+
+    #left-controls, #right-controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
     }
 
     #timer {
@@ -60,7 +67,7 @@
     }
 
     h1 {
-      margin-top: 80px;
+      margin-top: 100px;
       font-size: 36px;
     }
 
@@ -123,11 +130,15 @@
       background-color: #1565c0;
     }
 
+    #generateBtn {
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+
     @media (max-width: 600px) {
       #top-bar {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
       }
 
       h1 {
@@ -139,29 +150,51 @@
         flex-direction: column;
         gap: 15px;
       }
+
+      #left-controls, #right-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
     }
   </style>
 </head>
 <body class="day">
 
 <div id="top-bar">
-  <div id="timer">⏳ 12:00</div>
-  <div>
-    <label for="fontSize">Font Size:</label>
-    <select id="fontSize" onchange="updateFontSize(this.value)">
-      <option value="24">24px</option>
-      <option value="28">28px</option>
-      <option value="32" selected>32px</option>
-      <option value="36">36px</option>
-      <option value="40">40px</option>
-      <option value="48">48px</option>
-    </select>
+  <div id="left-controls">
+    <div id="timer">⏳ 12:00</div>
+    <div>
+      <label for="fontSize">Font Size:</label>
+      <select id="fontSize" onchange="updateFontSize(this.value)">
+        <option value="24">24px</option>
+        <option value="28">28px</option>
+        <option value="32" selected>32px</option>
+        <option value="36">36px</option>
+        <option value="40">40px</option>
+        <option value="48">48px</option>
+      </select>
+    </div>
+    <div>
+      <label for="modeToggle">Mode:</label>
+      <select id="modeToggle" onchange="toggleMode(this.value)">
+        <option value="day" selected>Day</option>
+        <option value="night">Night</option>
+      </select>
+    </div>
   </div>
-  <div>
-    <label for="modeToggle">Mode:</label>
-    <select id="modeToggle" onchange="toggleMode(this.value)">
-      <option value="day" selected>Day</option>
-      <option value="night">Night</option>
+  <div id="right-controls">
+    <label for="subjectSelect">Subject:</label>
+    <select id="subjectSelect">
+      <option selected>Any</option>
+      <option>Political and International Law</option>
+      <option>Labor Law and Social Legislation</option>
+      <option>Civil Law</option>
+      <option>Taxation</option>
+      <option>Mercantile Law</option>
+      <option>Criminal Law</option>
+      <option>Remedial Law</option>
+      <option>Legal and Judicial Ethics</option>
     </select>
   </div>
 </div>
@@ -169,8 +202,8 @@
 <h1>Bar Quamto Random Q&A</h1>
 <div id="counter">Loading questions...</div>
 
-<!-- Generate button directly under counter -->
-<button onclick="generateQA()">Generate</button>
+<!-- Generate Button -->
+<button id="generateBtn" onclick="generateQA()">Generate</button>
 
 <div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
 <div id="answer" class="card" style="font-size:32px;"></div>
@@ -196,7 +229,8 @@ async function fetchSheetData() {
 
     allData = rows.map(r => ({
       question: r.c[0]?.v || '',
-      answer: r.c[1]?.v || ''
+      answer: r.c[1]?.v || '',
+      subject: r.c[2]?.v || ''
     })).filter(q => q.question && q.answer);
 
     document.getElementById('counter').textContent =
@@ -213,24 +247,37 @@ function generateQA() {
     return;
   }
 
-  if (usedIndices.size >= allData.length) {
-    alert("All questions used! Resetting...");
-    usedIndices.clear();
+  const selectedSubject = document.getElementById('subjectSelect').value;
+  const filteredData = (selectedSubject === 'Any')
+    ? allData
+    : allData.filter(q => q.subject === selectedSubject);
+
+  if (filteredData.length === 0) {
+    alert("No questions for the selected subject.");
+    return;
   }
 
   let index;
+  let attempt = 0;
   do {
-    index = Math.floor(Math.random() * allData.length);
-  } while (usedIndices.has(index));
-  usedIndices.add(index);
+    index = Math.floor(Math.random() * filteredData.length);
+    attempt++;
+    if (attempt > 100) {
+      alert("No new questions found.");
+      return;
+    }
+  } while (usedIndices.has(filteredData[index].question + filteredData[index].subject));
 
-  const item = allData[index];
+  const item = filteredData[index];
+  usedIndices.add(item.question + item.subject);
+
   document.getElementById('question').textContent = item.question;
   document.getElementById('answer').textContent = item.answer;
   document.getElementById('answer').style.display = 'none';
 
+  const remaining = filteredData.length - [...usedIndices].filter(q => q.includes(item.subject)).length;
   document.getElementById('counter').textContent =
-    `Questions remaining: ${allData.length - usedIndices.size} of ${allData.length}`;
+    `Questions remaining: ${remaining} of ${filteredData.length}`;
 
   startTimer(12 * 60);
 }
