@@ -57,76 +57,74 @@
   <div id="question"></div>
   <div id="answer"></div>
 
-  <script>
-    let allData = [];
-    let usedIndices = new Set();
-    let timerInterval;
+ <script>
+let allData = [];
+let usedIndices = new Set();
+let timerInterval;
 
-    function init() {
-      Tabletop.init({
-        key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUkbQ-P9uKyrBkQfKHgR0raRlamfBko9U7f1npn50R-BWMN1AVFb93dRCdeT_bc9gPy6V-CSzgpOl/pubhtml',
-        simpleSheet: true,
-        callback: function(data) {
-          allData = data;
-          console.log("Loaded questions:", allData.length);
-        }
-      });
-    }
+async function init() {
+  const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTUkbQ-P9uKyrBkQfKHgR0raRlamfBko9U7f1npn50R-BWMN1AVFb93dRCdeT_bc9gPy6V-CSzgpOl/pub?output=csv';
+  try {
+    const response = await fetch(sheetUrl);
+    if (!response.ok) throw new Error('Fetch failed: ' + response.status);
+    const text = await response.text();
+    loadCsvData(text);
+    document.getElementById('btnGenerate').disabled = false;
+    alert('Data loaded! Click Generate to start.');
+  } catch (err) {
+    console.error(err);
+    alert('Error loading sheet: ' + err.message);
+  }
+}
 
-    function generateQA() {
-      if (allData.length === 0) {
-        alert("Data not loaded yet. Please wait...");
-        return;
-      }
+function loadCsvData(csvText) {
+  const rows = csvText.trim().split('\n').map(r => r.split(','));
+  rows.shift(); // remove header
+  rows.forEach(cols => {
+    allData.push({ Question: cols[0], Answer: cols[1] });
+  });
+  console.log('Parsed data:', allData);
+}
 
-      if (usedIndices.size === allData.length) {
-        alert("All questions shown!");
-        return;
-      }
+function generateQA() {
+  if (allData.length === 0) return alert('Still loading…');
+  if (usedIndices.size === allData.length) return alert('All questions shown!');
 
-      let index;
-      do {
-        index = Math.floor(Math.random() * allData.length);
-      } while (usedIndices.has(index));
+  let idx;
+  do { idx = Math.floor(Math.random() * allData.length); } 
+  while (usedIndices.has(idx));
 
-      usedIndices.add(index);
+  usedIndices.add(idx);
+  const item = allData[idx];
+  document.getElementById('question').textContent = item.Question;
+  document.getElementById('answer').textContent = item.Answer;
+  document.getElementById('question').style.display = 'block';
+  document.getElementById('answer').style.display = 'none';
+  startTimer(720);
+}
 
-      const item = allData[index];
-      document.getElementById('question').textContent = item.Question || "(No Question)";
-      document.getElementById('answer').textContent = item.Answer || "(No Answer)";
-      document.getElementById('question').style.display = 'block';
-      document.getElementById('answer').style.display = 'none';
+function toggleAnswer() {
+  const ans = document.getElementById('answer');
+  ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+}
 
-      startTimer(12 * 60); // 12 minutes
-    }
+function startTimer(duration) {
+  let time = duration;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const m = String(Math.floor(time / 60)).padStart(2, '0'),
+          s = String(time % 60).padStart(2, '0');
+    document.getElementById('timer').textContent = `⏳ ${m}:${s}`;
+    if (--time < 0) clearInterval(timerInterval);
+  }, 1000);
+}
 
-    function toggleAnswer() {
-      const ans = document.getElementById('answer');
-      if (ans.style.display === 'none') {
-        ans.style.display = 'block';
-      } else {
-        ans.style.display = 'none';
-      }
-    }
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnGenerate').disabled = true;
+  init();
+});
+</script>
 
-    function startTimer(duration) {
-      let time = duration;
-      clearInterval(timerInterval); // reset any running timer
-
-      timerInterval = setInterval(() => {
-        const minutes = String(Math.floor(time / 60)).padStart(2, '0');
-        const seconds = String(time % 60).padStart(2, '0');
-        document.getElementById("timer").textContent = `⏳ ${minutes}:${seconds}`;
-
-        if (--time < 0) {
-          clearInterval(timerInterval);
-          document.getElementById("timer").textContent = "⏳ Time's up!";
-        }
-      }, 1000);
-    }
-
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
 
 </body>
 </html>
