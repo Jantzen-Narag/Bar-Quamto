@@ -252,6 +252,7 @@ async function fetchSheetData() {
 }
 
 function generateQA() {
+  document.getElementById("userInput").value = "";
   if (allData.length === 0) {
     alert("Data not yet loaded.");
     return;
