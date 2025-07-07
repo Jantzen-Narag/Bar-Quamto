@@ -20,9 +20,15 @@
     }
 
     h1 {
-      margin-bottom: 20px;
-      font-size: 32px;
+      margin-bottom: 10px;
+      font-size: 36px;
       color: #333;
+    }
+
+    #counter {
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #444;
     }
 
     #timer {
@@ -43,10 +49,10 @@
       border-radius: 16px;
       padding: 30px;
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       text-align: justify;
-      font-size: 20px;
+      font-size: 32px;
       line-height: 1.6;
       white-space: pre-wrap;
     }
@@ -63,15 +69,16 @@
     .button-row {
       margin-top: 30px;
       display: flex;
-      gap: 16px;
+      justify-content: center;
+      gap: 40px;
     }
 
     button {
       background-color: #1976d2;
       color: white;
       border: none;
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: 14px 28px;
+      font-size: 18px;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.2s;
@@ -83,12 +90,17 @@
 
     @media (max-width: 600px) {
       .card {
-        font-size: 18px;
+        font-size: 24px;
         padding: 20px;
       }
 
       h1 {
-        font-size: 26px;
+        font-size: 28px;
+      }
+
+      .button-row {
+        flex-direction: column;
+        gap: 16px;
       }
     }
   </style>
@@ -97,6 +109,7 @@
 
 <div id="timer">⏳ 12:00</div>
 <h1>Bar Quamto Random Q&A</h1>
+<div id="counter">Loading questions...</div>
 
 <div id="question" class="card">Press "Generate" to start</div>
 <div id="answer" class="card"></div>
@@ -126,7 +139,10 @@ async function fetchSheetData() {
       answer: r.c[1]?.v || ''
     })).filter(q => q.question && q.answer);
 
-    console.log("Loaded", allData.length, "Q&A items");
+    // Set initial counter
+    document.getElementById('counter').textContent =
+      `Questions remaining: ${allData.length} of ${allData.length}`;
+
   } catch (e) {
     alert("Failed to load Google Sheet");
     console.error(e);
@@ -154,6 +170,10 @@ function generateQA() {
   document.getElementById('question').textContent = item.question;
   document.getElementById('answer').textContent = item.answer;
   document.getElementById('answer').style.display = 'none';
+
+  // Update counter
+  document.getElementById('counter').textContent =
+    `Questions remaining: ${allData.length - usedIndices.size} of ${allData.length}`;
 
   startTimer(12 * 60);
 }
