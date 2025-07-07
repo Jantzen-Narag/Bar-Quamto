@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <title>Bar Quamto Q&A</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,32 +14,30 @@
       padding: 30px;
       transition: background 0.3s, color 0.3s;
     }
-
     body.day {
       background: #f4f6f9;
       color: #222;
     }
-
     body.night {
       background: rgb(142, 142, 147);
       color: #f9f9f9;
     }
 
-    h1 {
-      margin-bottom: 5px;
-      font-size: 36px;
-    }
-
-    #counter {
-      margin-bottom: 20px;
-      font-size: 18px;
-      color: inherit;
-    }
-
-    #timer {
+    #top-bar {
       position: fixed;
       top: 20px;
       left: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      background: rgba(0,0,0,0.05);
+      padding: 10px 20px;
+      border-radius: 12px;
+      z-index: 1000;
+    }
+
+    #timer {
       background: #1e88e5;
       color: white;
       padding: 10px 16px;
@@ -50,6 +45,29 @@
       font-size: 16px;
       font-weight: bold;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    label {
+      font-size: 14px;
+      margin-right: 6px;
+    }
+
+    select {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    h1 {
+      margin-top: 80px;
+      font-size: 36px;
+    }
+
+    #counter {
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: inherit;
     }
 
     .card {
@@ -83,14 +101,14 @@
     }
 
     .button-row {
-      margin-top: 30px;
+      margin-top: 20px;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       gap: 30px;
     }
 
-    button, select {
+    button {
       background-color: #1976d2;
       color: white;
       border: none;
@@ -105,26 +123,19 @@
       background-color: #1565c0;
     }
 
-    .controls {
-      margin-top: 25px;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
-
-    label {
-      font-size: 14px;
-      margin-right: 6px;
-    }
-
     @media (max-width: 600px) {
-      h1 {
-        font-size: 28px;
+      #top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
 
-      .controls, .button-row {
+      h1 {
+        font-size: 28px;
+        margin-top: 120px;
+      }
+
+      .button-row {
         flex-direction: column;
         gap: 15px;
       }
@@ -133,19 +144,8 @@
 </head>
 <body class="day">
 
-<div id="timer">⏳ 12:00</div>
-<h1>Bar Quamto Random Q&A</h1>
-<div id="counter">Loading questions...</div>
-
-<div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
-<div id="answer" class="card" style="font-size:32px;"></div>
-
-<div class="button-row">
-  <button onclick="generateQA()">Generate</button>
-  <button onclick="toggleAnswer()">Show/Hide Answer</button>
-</div>
-
-<div class="controls">
+<div id="top-bar">
+  <div id="timer">⏳ 12:00</div>
   <div>
     <label for="fontSize">Font Size:</label>
     <select id="fontSize" onchange="updateFontSize(this.value)">
@@ -157,7 +157,6 @@
       <option value="48">48px</option>
     </select>
   </div>
-
   <div>
     <label for="modeToggle">Mode:</label>
     <select id="modeToggle" onchange="toggleMode(this.value)">
@@ -165,6 +164,19 @@
       <option value="night">Night</option>
     </select>
   </div>
+</div>
+
+<h1>Bar Quamto Random Q&A</h1>
+<div id="counter">Loading questions...</div>
+
+<!-- Generate button directly under counter -->
+<button onclick="generateQA()">Generate</button>
+
+<div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
+<div id="answer" class="card" style="font-size:32px;"></div>
+
+<div class="button-row">
+  <button onclick="toggleAnswer()">Show/Hide Answer</button>
 </div>
 
 <script>
@@ -189,7 +201,6 @@ async function fetchSheetData() {
 
     document.getElementById('counter').textContent =
       `Questions remaining: ${allData.length} of ${allData.length}`;
-
   } catch (e) {
     alert("Failed to load Google Sheet.");
     console.error(e);
