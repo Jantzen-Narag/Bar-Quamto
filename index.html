@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Q&A Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+  <style>
+    body {
+      font-family: "Times New Roman", serif;
+      background: #fefefe;
+      padding: 40px;
+    }
+    #question, #answer {
+      margin: 30px 0;
+      font-size: 24px;
+      white-space: pre-wrap;
+    }
+    #answer {
+      color: green;
+      display: none;
+    }
+    #timer {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 18px;
+      background-color: #f0f0f0;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="timer">⏳ 12:00</div>
+
+  <h2>Random Q&A Generator</h2>
+  <div id="question">Click "Generate" to get a new question.</div>
+  <div id="answer"></div>
+
+  <button onclick="generateQA()">Generate</button>
+  <button onclick="toggleAnswer()">Show/Hide Answer</button>
+
+  <script>
+    let data = [];
+    let used = new Set();
+    let countdown, timeLeft = 720; // 12 minutes = 720 seconds
+
+    function init() {
+      Tabletop.init({
+        key: 'https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/pubhtml',
+        simpleSheet: true,
+        callback: function(sheetData) {
+          data = sheetData;
+        }
+      });
+    }
+
+    function generateQA() {
+      if (data.length === 0) return;
+
+      // Clear previous answer
+      document.getElementById('answer').style.display = "none";
+
+      // Check if all used
+      if (used.size >= data.length) {
+        alert("All questions shown.");
+        return;
+      }
+
+      let index;
+      do {
+        index = Math.floor(Math.random() * data.length);
+      } while (used.has(index));
+
+      used.add(index);
+      const item = data[index];
+      document.getElementById('question').textContent = item.Question || "No question";
+      document.getElementById('answer').textContent = item.Answer || "No answer";
+
+      // Restart timer
+      clearInterval(countdown);
+      timeLeft = 720;
+      updateTimer();
+      countdown = setInterval(updateTimer, 1000);
+    }
+
+    function toggleAnswer() {
+      const ans = document.getElementById('answer');
+      ans.style.display = (ans.style.display === "none") ? "block" : "none";
+    }
+
+    function updateTimer() {
+      const min = Math.floor(timeLeft / 60);
+      const sec = timeLeft % 60;
+      document.getElementById('timer').textContent = `⏳ ${min}:${sec.toString().padStart(2, '0')}`;
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        alert("Time's up! Click Show Answer.");
+        document.getElementById('answer').style.display = "block";
+      } else {
+        timeLeft--;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
