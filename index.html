@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Bar Quamto Q&A</title>
   <style>
     * { box-sizing: border-box; }
@@ -14,14 +14,8 @@
       padding: 30px;
       transition: background 0.3s, color 0.3s;
     }
-    body.day {
-      background: #f4f6f9;
-      color: #222;
-    }
-    body.night {
-      background: rgb(142, 142, 147);
-      color: #f9f9f9;
-    }
+    body.day { background: #f4f6f9; color: #222; }
+    body.night { background: rgb(142, 142, 147); color: #f9f9f9; }
 
     .top-bar-container {
       position: fixed;
@@ -54,11 +48,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    label {
-      font-size: 14px;
-      margin-right: 6px;
-    }
-
+    label { font-size: 14px; margin-right: 6px; }
     select {
       padding: 6px 10px;
       font-size: 14px;
@@ -71,10 +61,14 @@
       font-size: 36px;
     }
 
-    #counter {
-      margin-bottom: 10px;
+    #counter, #subjectLabel {
       font-size: 18px;
       color: inherit;
+    }
+    #subjectLabel {
+      margin-bottom: 20px;
+      font-style: italic;
+      opacity: 0.7;
     }
 
     .card {
@@ -94,15 +88,11 @@
       color: #f9f9f9;
     }
 
-    #question {
-      margin-bottom: 30px;
-    }
-
+    #question { margin-bottom: 30px; }
     #answer {
       display: none;
       color: #2e7d32;
     }
-
     body.night #answer {
       color: #7cff7c;
     }
@@ -126,9 +116,7 @@
       transition: background-color 0.2s;
     }
 
-    button:hover {
-      background-color: #1565c0;
-    }
+    button:hover { background-color: #1565c0; }
 
     #generateBtn {
       margin-top: 20px;
@@ -147,10 +135,7 @@
         align-items: flex-start;
       }
 
-      h1 {
-        font-size: 28px;
-        margin-top: 120px;
-      }
+      h1 { font-size: 28px; margin-top: 120px; }
 
       .button-row {
         flex-direction: column;
@@ -202,8 +187,7 @@
 
 <h1>Bar Quamto Random Q&A</h1>
 <div id="counter">Loading questions...</div>
-
-<!-- Generate Button -->
+<div id="subjectLabel"></div>
 <button id="generateBtn" onclick="generateQA()">Generate</button>
 
 <div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
@@ -255,7 +239,10 @@ function generateQA() {
     : allData.filter(q => q.subject === selectedSubject);
 
   if (filteredData.length === 0) {
-    alert("No questions for the selected subject.");
+    document.getElementById('question').textContent = "";
+    document.getElementById('answer').textContent = "";
+    document.getElementById('subjectLabel').textContent = `No question under "${selectedSubject}" yet. Still being encoded.`;
+    document.getElementById('counter').textContent = `Questions remaining: 0 of 0`;
     return;
   }
 
@@ -280,6 +267,12 @@ function generateQA() {
   const remaining = filteredData.length - [...usedIndices].filter(q => q.includes(item.subject)).length;
   document.getElementById('counter').textContent =
     `Questions remaining: ${remaining} of ${filteredData.length}`;
+
+  if (selectedSubject === 'Any') {
+    document.getElementById('subjectLabel').textContent = `Question on "${item.subject}" subject.`;
+  } else {
+    document.getElementById('subjectLabel').textContent = '';
+  }
 
   startTimer(12 * 60);
 }
