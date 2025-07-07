@@ -2,346 +2,219 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bar Quamto Q&A</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bar Quamto Generator</title>
   <style>
-    * { box-sizing: border-box; }
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px;
-      transition: background 0.3s, color 0.3s;
+      padding: 1rem;
+      background-color: #fff;
+      color: #000;
+      transition: background-color 0.3s, color 0.3s;
     }
-    body.day { background: #f4f6f9; color: #222; }
-    body.night { background: rgb(142, 142, 147); color: #f9f9f9; }
-
-    .top-bar-container {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      right: 20px;
+    body.night {
+      background-color: rgb(142, 142, 147);
+      color: #fff;
+    }
+    .top-bar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-      z-index: 1000;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
-
-    .top-bar-box {
-      background: rgba(0,0,0,0.05);
-      padding: 10px 20px;
-      border-radius: 12px;
+    .top-controls {
       display: flex;
-      gap: 20px;
+      gap: 1rem;
       align-items: center;
     }
-
-    #timer {
-      background: #1e88e5;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 25px;
-      font-size: 16px;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    label { font-size: 14px; margin-right: 6px; }
-    select {
-      padding: 6px 10px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    h1 {
-      margin-top: 100px;
-      font-size: 36px;
-    }
-
-    #counter, #subjectLabel {
-      font-size: 18px;
-      color: inherit;
-    }
-    #subjectLabel {
-      margin-bottom: 20px;
-      font-style: italic;
-      opacity: 0.7;
-    }
-
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 30px;
-      width: 90%;
-      max-width: 900px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      text-align: justify;
-      white-space: pre-wrap;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    body.night .card {
-      background: #2c2c2e;
-      color: #f9f9f9;
-    }
-
-    #question { margin-bottom: 30px; }
-    #answer {
-      display: none;
-      color: #2e7d32;
-    }
-    body.night #answer {
-      color: #7cff7c;
-    }
-
-    .button-row {
-      margin-top: 20px;
+    .subject-block {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 30px;
+      align-items: center;
+      gap: 0.5rem;
     }
-
-    button {
-      background-color: #1976d2;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
+    #question {
+      font-size: 32px;
+      text-align: justify;
+      padding: 1rem;
+      border: 1px solid #ccc;
       border-radius: 8px;
+      background-color: #f9f9f9;
+      margin-top: 1rem;
+    }
+    #answer-container {
+      display: none;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    #answer, #user-input {
+      flex: 1;
+      font-size: 32px;
+      text-align: justify;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    textarea {
+      width: 100%;
+      resize: vertical;
+      min-height: 100px;
+      font-size: 32px;
+    }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .button {
+      padding: 0.75rem 1.5rem;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      background-color: #007BFF;
+      color: white;
     }
-
-    button:hover { background-color: #1565c0; }
-
-    #generateBtn {
-      margin-top: 20px;
-      margin-bottom: 30px;
+    .info-text {
+      margin-top: 1rem;
+      font-style: italic;
     }
-
-    .toggle-icon {
-      cursor: pointer;
-      font-size: 24px;
-      user-select: none;
+    .hidden {
+      display: none;
     }
-
-    @media (max-width: 600px) {
-      .top-bar-container {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      h1 { font-size: 28px; margin-top: 120px; }
-
-      .button-row {
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .top-bar-box {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-    }
-    
-textarea#userInput {
-  width: 90%;
-  max-width: 900px;
-  font-size: 16px;
-  padding: 12px;
-  margin-top: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  resize: none;
-  min-height: 60px;
-  background: #fff;
-  color: #000;
-  transition: background 0.3s, color 0.3s;
-}
-body.night textarea#userInput {
-  background: #3a3a3c;
-  color: #fff;
-  border: 1px solid #888;
-}
-
-    
   </style>
 </head>
-<body class="day">
-
-<div class="top-bar-container">
-  <div class="top-bar-box">
-    <div id="timer">⏳ 12:00</div>
-    <div>
-      <label for="fontSize">Font Size:</label>
-      <select id="fontSize" onchange="updateFontSize(this.value)">
-        <option value="24">24px</option>
-        <option value="28">28px</option>
-        <option value="32" selected>32px</option>
-        <option value="36">36px</option>
-        <option value="40">40px</option>
-        <option value="48">48px</option>
+<body>
+  <div class="top-bar">
+    <div class="top-controls">
+      <label for="font-size">Font Size:</label>
+      <select id="font-size">
+        <option value="24">24</option>
+        <option value="28">28</option>
+        <option value="32" selected>32</option>
+        <option value="36">36</option>
+      </select>
+      <button id="theme-toggle">🌗</button>
+      <span id="timer">12:00</span>
+    </div>
+    <div class="subject-block">
+      <label for="subject-select">Subject:</label>
+      <select id="subject-select">
+        <option value="Any">Any</option>
+        <option>Political and International Law</option>
+        <option>Labor Law and Social Legislation</option>
+        <option>Civil Law</option>
+        <option>Taxation</option>
+        <option>Mercantile Law</option>
+        <option>Criminal Law</option>
+        <option>Remedial Law</option>
+        <option>Legal and Judicial Ethics</option>
       </select>
     </div>
-    <div class="toggle-icon" onclick="toggleMode()" id="modeIcon">🌞</div>
   </div>
 
-  <div class="top-bar-box">
-    <label for="subjectSelect">Subject:</label>
-    <select id="subjectSelect">
-      <option selected>Any</option>
-      <option>Political and International Law</option>
-      <option>Labor Law and Social Legislation</option>
-      <option>Civil Law</option>
-      <option>Taxation</option>
-      <option>Mercantile Law</option>
-      <option>Criminal Law</option>
-      <option>Remedial Law</option>
-      <option>Legal and Judicial Ethics</option>
-    </select>
+  <div id="remaining"></div>
+  <button class="button" id="generate">Generate Question</button>
+
+  <div id="question"></div>
+  <div id="subject-info" class="info-text"></div>
+
+  <div id="answer-container" style="display: none; flex-direction: row;">
+    <div id="answer"></div>
+    <div id="user-input">
+      <label for="userAnswer">Your Answer:</label>
+      <textarea id="userAnswer" placeholder="Type your answer here..."></textarea>
+    </div>
   </div>
-</div>
 
-<h1>Bar Quamto Random Q&A</h1>
-<div id="counter">Loading questions...</div>
-<div id="subjectLabel"></div>
-<button id="generateBtn" onclick="generateQA()">Generate</button>
+  <div class="controls">
+    <button class="button" id="toggle-answer">Show/Hide Answer</button>
+  </div>
 
-<div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
-<div id="answer" class="card" style="font-size:32px;"></div>
+  <script>
+    const sheetID = '1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw';
+    const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+    let data = [], usedIndexes = [], timerInterval;
 
-<textarea id="userInput" placeholder="Type your answer here..." oninput="autoResize(this)"></textarea>
-  
-<div class="button-row">
-  <button onclick="toggleAnswer()">Show/Hide Answer</button>
-</div>
+    const fetchSheet = async () => {
+      try {
+        const res = await fetch(sheetURL);
+        const text = await res.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        data = rows.map(r => ({
+          question: r.c[0]?.v || '',
+          answer: r.c[1]?.v || '',
+          subject: r.c[2]?.v || 'Unknown'
+        })).filter(q => q.question && q.answer);
+        document.getElementById("remaining").textContent = `${data.length - usedIndexes.length} Questions Remaining`;
+      } catch (e) {
+        alert("Failed to load Google Sheet.");
+        console.error(e);
+      }
+    };
 
-<script>
-const sheetID = '1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw';
-const sheetURL = `https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/gviz/tq?tqx=out:json`;
+    const getSelectedSubject = () => document.getElementById("subject-select").value;
 
-let allData = [];
-let usedIndices = new Set();
-let timerInterval = null;
-let isNight = false;
+    const generateQuestion = () => {
+      const subject = getSelectedSubject();
+      let filtered = subject === "Any" ? data : data.filter(q => q.subject === subject);
+      const remaining = filtered.filter((_, i) => !usedIndexes.includes(data.indexOf(_)));
+      if (remaining.length === 0) {
+        document.getElementById("question").textContent = `No Question under ${subject} Subject Yet. Still being encoded.`;
+        document.getElementById("answer").textContent = '';
+        document.getElementById("subject-info").textContent = '';
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * remaining.length);
+      const item = remaining[randomIndex];
+      const originalIndex = data.indexOf(item);
+      usedIndexes.push(originalIndex);
 
-async function fetchSheetData() {
-  try {
-    const res = await fetch(sheetURL);
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    const rows = json.table.rows;
+      document.getElementById("question").textContent = item.question;
+      document.getElementById("answer").textContent = item.answer;
+      document.getElementById("subject-info").textContent = subject === "Any" ? `Question on ${item.subject} Subject` : '';
 
-    allData = rows.map(r => ({
-      question: r.c[0]?.v || '',
-      answer: r.c[1]?.v || '',
-      subject: r.c[2]?.v || ''
-    })).filter(q => q.question && q.answer);
+      document.getElementById("answer-container").style.display = "none";
+      document.getElementById("userAnswer").value = "";
+      document.getElementById("remaining").textContent = `${data.length - usedIndexes.length} Questions Remaining`;
 
-    document.getElementById('counter').textContent =
-      `Questions remaining: ${allData.length} of ${allData.length}`;
-  } catch (e) {
-    alert("Failed to load Google Sheet.");
-    console.error(e);
-  }
-}
+      startTimer();
+    };
 
-function generateQA() {
-  if (allData.length === 0) {
-    alert("Data not yet loaded.");
-    return;
-  }
+    const startTimer = () => {
+      clearInterval(timerInterval);
+      let time = 12 * 60;
+      timerInterval = setInterval(() => {
+        const min = Math.floor(time / 60).toString().padStart(2, '0');
+        const sec = (time % 60).toString().padStart(2, '0');
+        document.getElementById("timer").textContent = `${min}:${sec}`;
+        time--;
+        if (time < 0) clearInterval(timerInterval);
+      }, 1000);
+    };
 
-  const selectedSubject = document.getElementById('subjectSelect').value;
-  const filteredData = (selectedSubject === 'Any')
-    ? allData
-    : allData.filter(q => q.subject === selectedSubject);
+    document.getElementById("font-size").addEventListener("change", e => {
+      const size = e.target.value + "px";
+      document.getElementById("question").style.fontSize = size;
+      document.getElementById("answer").style.fontSize = size;
+      document.getElementById("user-input").style.fontSize = size;
+    });
 
-  if (filteredData.length === 0) {
-    document.getElementById('question').textContent = "";
-    document.getElementById('answer').textContent = "";
-    document.getElementById('subjectLabel').textContent = `No question under "${selectedSubject}" yet. Still being encoded.`;
-    document.getElementById('counter').textContent = `Questions remaining: 0 of 0`;
-    return;
-  }
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+      document.body.classList.toggle("night");
+    });
 
-  let index;
-  let attempt = 0;
-  do {
-    index = Math.floor(Math.random() * filteredData.length);
-    attempt++;
-    if (attempt > 100) {
-      alert("No new questions found.");
-      return;
-    }
-  } while (usedIndices.has(filteredData[index].question + filteredData[index].subject));
+    document.getElementById("generate").addEventListener("click", generateQuestion);
+    document.getElementById("toggle-answer").addEventListener("click", () => {
+      const container = document.getElementById("answer-container");
+      container.style.display = container.style.display === "none" ? "flex" : "none";
+    });
 
-  const item = filteredData[index];
-  usedIndices.add(item.question + item.subject);
-
-  document.getElementById('question').textContent = item.question;
-  document.getElementById('answer').textContent = item.answer;
-  document.getElementById('answer').style.display = 'none';
-
-  const remaining = filteredData.length - [...usedIndices].filter(q => q.includes(item.subject)).length;
-  document.getElementById('counter').textContent =
-    `Questions remaining: ${remaining} of ${filteredData.length}`;
-
-  if (selectedSubject === 'Any') {
-    document.getElementById('subjectLabel').textContent = `Question on "${item.subject}" subject.`;
-  } else {
-    document.getElementById('subjectLabel').textContent = '';
-  }
-
-  startTimer(12 * 60);
-}
-
-  function autoResize(textarea) {
-  textarea.style.height = "auto";
-  textarea.style.height = textarea.scrollHeight + "px";
-}
-
-  
-function toggleAnswer() {
-  const answer = document.getElementById('answer');
-  answer.style.display = (answer.style.display === 'none') ? 'block' : 'none';
-}
-
-function startTimer(seconds) {
-  clearInterval(timerInterval);
-  const timer = document.getElementById('timer');
-  let remaining = seconds;
-
-  function update() {
-    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
-    const s = String(remaining % 60).padStart(2, '0');
-    timer.textContent = `⏳ ${m}:${s}`;
-    if (remaining <= 0) clearInterval(timerInterval);
-    remaining--;
-  }
-
-  update();
-  timerInterval = setInterval(update, 1000);
-}
-
-function updateFontSize(size) {
-  document.getElementById('question').style.fontSize = size + 'px';
-  document.getElementById('answer').style.fontSize = size + 'px';
-}
-
-function toggleMode() {
-  isNight = !isNight;
-  document.body.className = isNight ? 'night' : 'day';
-  document.getElementById('modeIcon').textContent = isNight ? '🌙' : '🌞';
-}
-
-window.onload = fetchSheetData;
-</script>
-
+    fetchSheet();
+  </script>
 </body>
 </html>
