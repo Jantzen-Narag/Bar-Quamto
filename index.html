@@ -2,121 +2,131 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Q&A Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+  <title>Random Q&A Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/tabletop@1.6.4/tabletop.min.js"></script>
   <style>
     body {
-      font-family: "Times New Roman", serif;
-      background: #fefefe;
-      padding: 40px;
+      font-family: Georgia, serif;
+      padding: 2rem;
+      background-color: #fefefe;
+      color: #111;
+      text-align: center;
     }
+
+    .timer {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #eee;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+    }
+
     #question, #answer {
-      margin: 30px 0;
-      font-size: 24px;
-      white-space: pre-wrap;
-    }
-    #answer {
-      color: green;
+      max-width: 800px;
+      margin: 1rem auto;
+      font-size: 1.2rem;
+      line-height: 1.6;
       display: none;
     }
-    #timer {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      font-size: 18px;
-      background-color: #f0f0f0;
-      padding: 8px 12px;
-      border-radius: 6px;
+
+    #answer {
+      color: #333;
+      font-style: italic;
     }
+
     button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-right: 10px;
+      padding: 0.75rem 1.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="timer">⏳ 12:00</div>
 
+  <div class="timer" id="timer">⏳ 12:00</div>
   <h2>Random Q&A Generator</h2>
-  <div id="question">Click "Generate" to get a new question.</div>
-  <div id="answer"></div>
+  <p>Click "Generate" to get a new question.</p>
 
   <button onclick="generateQA()">Generate</button>
   <button onclick="toggleAnswer()">Show/Hide Answer</button>
 
+  <div id="question"></div>
+  <div id="answer"></div>
+
   <script>
-    let data = [];
-    let used = new Set();
-    let countdown, timeLeft = 720; // 12 minutes = 720 seconds
+    let allData = [];
+    let usedIndices = new Set();
+    let timerInterval;
 
-    console.log("Loaded data:", data);
-
-    Tabletop.init({
-  key: 'https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/pubhtml',
-  callback: showQA,
-  simpleSheet: true
-});
-
+    function init() {
+      Tabletop.init({
+        key: 'https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/pubhtml',
+        simpleSheet: true,
+        callback: function(data) {
+          allData = data;
+          console.log("Loaded questions:", allData.length);
+        }
+      });
+    }
 
     function generateQA() {
-      if (data.length === 0) return;
+      if (allData.length === 0) {
+        alert("Data not loaded yet. Please wait...");
+        return;
+      }
 
-      // Clear previous answer
-      document.getElementById('answer').style.display = "none";
-
-      // Check if all used
-      if (used.size >= data.length) {
-        alert("All questions shown.");
+      if (usedIndices.size === allData.length) {
+        alert("All questions shown!");
         return;
       }
 
       let index;
       do {
-        index = Math.floor(Math.random() * data.length);
-      } while (used.has(index));
+        index = Math.floor(Math.random() * allData.length);
+      } while (usedIndices.has(index));
 
-      used.add(index);
-      const item = data[index];
-      document.getElementById('question').textContent = item.Question || "No question";
-      document.getElementById('answer').textContent = item.Answer || "No answer";
+      usedIndices.add(index);
 
-      // Restart timer
-      clearInterval(countdown);
-      timeLeft = 720;
-      updateTimer();
-      countdown = setInterval(updateTimer, 1000);
+      const item = allData[index];
+      document.getElementById('question').textContent = item.Question || "(No Question)";
+      document.getElementById('answer').textContent = item.Answer || "(No Answer)";
+      document.getElementById('question').style.display = 'block';
+      document.getElementById('answer').style.display = 'none';
+
+      startTimer(12 * 60); // 12 minutes
     }
 
     function toggleAnswer() {
       const ans = document.getElementById('answer');
-      ans.style.display = (ans.style.display === "none") ? "block" : "none";
-    }
-function showQA(data) {
-  console.log("Data loaded from Sheet:", data); // Check in console
-
-  const randomIndex = Math.floor(Math.random() * data.length);
-  const question = data[randomIndex].Question;
-  const answer = data[randomIndex].Answer;
-
-  document.getElementById('question').innerText = question;
-  document.getElementById('answer').innerText = answer;
-}
-
-    function updateTimer() {
-      const min = Math.floor(timeLeft / 60);
-      const sec = timeLeft % 60;
-      document.getElementById('timer').textContent = `⏳ ${min}:${sec.toString().padStart(2, '0')}`;
-      if (timeLeft <= 0) {
-        clearInterval(countdown);
-        alert("Time's up! Click Show Answer.");
-        document.getElementById('answer').style.display = "block";
+      if (ans.style.display === 'none') {
+        ans.style.display = 'block';
       } else {
-        timeLeft--;
+        ans.style.display = 'none';
       }
+    }
+
+    function startTimer(duration) {
+      let time = duration;
+      clearInterval(timerInterval); // reset any running timer
+
+      timerInterval = setInterval(() => {
+        const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+        const seconds = String(time % 60).padStart(2, '0');
+        document.getElementById("timer").textContent = `⏳ ${minutes}:${seconds}`;
+
+        if (--time < 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timer").textContent = "⏳ Time's up!";
+        }
+      }, 1000);
     }
 
     window.addEventListener('DOMContentLoaded', init);
   </script>
+
 </body>
 </html>
