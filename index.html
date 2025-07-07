@@ -90,6 +90,16 @@
       const ans = document.getElementById('answer');
       ans.style.display = (ans.style.display === "none") ? "block" : "none";
     }
+function showQA(data) {
+  console.log("Data loaded from Sheet:", data); // Check in console
+
+  const randomIndex = Math.floor(Math.random() * data.length);
+  const question = data[randomIndex].Question;
+  const answer = data[randomIndex].Answer;
+
+  document.getElementById('question').innerText = question;
+  document.getElementById('answer').innerText = answer;
+}
 
     function updateTimer() {
       const min = Math.floor(timeLeft / 60);
