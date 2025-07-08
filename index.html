@@ -89,12 +89,43 @@
     }
 
     #question { margin-bottom: 30px; }
-    #answer {
+
+    #qa-container {
       display: none;
+      flex-direction: row;
+      gap: 20px;
+      width: 90%;
+      max-width: 900px;
+    }
+
+    #answer, #userInputContainer {
+      flex: 1;
+    }
+
+    #answer {
+      display: block;
       color: #2e7d32;
     }
     body.night #answer {
       color: #7cff7c;
+    }
+
+    #userInput {
+      width: 100%;
+      font-size: 16px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      resize: none;
+      min-height: 60px;
+      background: #fff;
+      color: #000;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.night #userInput {
+      background: #3a3a3c;
+      color: #fff;
+      border: 1px solid #888;
     }
 
     .button-row {
@@ -147,29 +178,11 @@
         align-items: flex-start;
         gap: 10px;
       }
-    }
-    
-textarea#userInput {
-  width: 90%;
-  max-width: 900px;
-  font-size: 16px;
-  padding: 12px;
-  margin-top: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  resize: none;
-  min-height: 60px;
-  background: #fff;
-  color: #000;
-  transition: background 0.3s, color 0.3s;
-}
-body.night textarea#userInput {
-  background: #3a3a3c;
-  color: #fff;
-  border: 1px solid #888;
-}
 
-    
+      #qa-container {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body class="day">
@@ -213,17 +226,21 @@ body.night textarea#userInput {
 <button id="generateBtn" onclick="generateQA()">Generate</button>
 
 <div id="question" class="card" style="font-size:32px;">Press "Generate" to start</div>
-<div id="answer" class="card" style="font-size:32px;"></div>
 
-<textarea id="userInput" placeholder="Type your answer here..." oninput="autoResize(this)"></textarea>
-  
+<div id="qa-container">
+  <div id="answer" class="card" style="font-size:32px;"></div>
+  <div id="userInputContainer" class="card">
+    <textarea id="userInput" placeholder="Type your answer here..." oninput="autoResize(this)"></textarea>
+  </div>
+</div>
+
 <div class="button-row">
   <button onclick="toggleAnswer()">Show/Hide Answer</button>
 </div>
 
 <script>
 const sheetID = '1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw';
-const sheetURL = `https://docs.google.com/spreadsheets/d/1Ga6gDNCJqlIRhawqiqw_vaNZ_W4maxv2OS_km6yGDMw/gviz/tq?tqx=out:json`;
+const sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
 let allData = [];
 let usedIndices = new Set();
@@ -287,7 +304,7 @@ function generateQA() {
 
   document.getElementById('question').textContent = item.question;
   document.getElementById('answer').textContent = item.answer;
-  document.getElementById('answer').style.display = 'none';
+  document.getElementById('qa-container').style.display = 'none';
 
   const remaining = filteredData.length - [...usedIndices].filter(q => q.includes(item.subject)).length;
   document.getElementById('counter').textContent =
@@ -302,15 +319,14 @@ function generateQA() {
   startTimer(12 * 60);
 }
 
-  function autoResize(textarea) {
+function autoResize(textarea) {
   textarea.style.height = "auto";
   textarea.style.height = textarea.scrollHeight + "px";
 }
 
-  
 function toggleAnswer() {
-  const answer = document.getElementById('answer');
-  answer.style.display = (answer.style.display === 'none') ? 'block' : 'none';
+  const container = document.getElementById('qa-container');
+  container.style.display = (container.style.display === 'none') ? 'flex' : 'none';
 }
 
 function startTimer(seconds) {
@@ -333,6 +349,7 @@ function startTimer(seconds) {
 function updateFontSize(size) {
   document.getElementById('question').style.fontSize = size + 'px';
   document.getElementById('answer').style.fontSize = size + 'px';
+  document.getElementById('userInput').style.fontSize = size + 'px';
 }
 
 function toggleMode() {
