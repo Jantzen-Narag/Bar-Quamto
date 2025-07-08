@@ -104,6 +104,7 @@
 
     #answer {
       color: #2e7d32;
+      display: none;
     }
     body.night #answer {
       color: #7cff7c;
@@ -179,24 +180,35 @@
       }
 
       #qa-container {
-        flex-direction: column;
+        flex-direction: column !important;
       }
     }
   </style>
 </head>
 <body class="day">
 
-<!-- (HTML content remains unchanged above this point) -->
+<div id="qa-container">
+  <div id="question" class="card">Press "Generate" to start</div>
+  <div id="answer" class="card"></div>
+  <div id="userInputContainer">
+    <textarea id="userInput" placeholder="Type your answer here..."></textarea>
+  </div>
+</div>
+
+<div class="button-row">
+  <button onclick="toggleAnswer()">Show/Hide Answer</button>
+</div>
 
 <script>
 function toggleAnswer() {
   const container = document.getElementById('qa-container');
   const answer = document.getElementById('answer');
-  const userInputContainer = document.getElementById('userInputContainer');
 
-  if (container.style.flexDirection === 'column') {
+  if (answer.style.display === 'none') {
+    answer.style.display = 'block';
     container.style.flexDirection = 'row';
   } else {
+    answer.style.display = 'none';
     container.style.flexDirection = 'column';
   }
 }
