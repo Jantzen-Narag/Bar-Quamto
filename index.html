@@ -199,48 +199,83 @@
 </head>
 <body class="day">
 
-<!-- ... other content remains unchanged ... -->
+  <h1>Compiled Bar Q&A</h1>
 
-<div id="contextMenu">
-  <button onclick="highlightSelection(); hideContextMenu()">Highlight</button>
-</div>
+  <div class="card" id="qaContainer">
+    <div id="question">Select a subject and click Generate to begin.</div>
+    <textarea id="userInput" placeholder="Type your answer here..."></textarea>
+    <div id="answer">Answer will be shown here.</div>
+  </div>
 
-<script>
-  document.addEventListener("mouseup", function (e) {
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim() !== "") {
-      const contextMenu = document.getElementById("contextMenu");
-      contextMenu.style.top = `${e.pageY}px`;
-      contextMenu.style.left = `${e.pageX}px`;
-      contextMenu.style.display = "block";
-    } else {
-      hideContextMenu();
+  <div id="counter">Questions remaining: 0</div>
+  <div id="subjectLabel"></div>
+
+  <button id="generateBtn">Generate</button>
+
+  <div class="button-row">
+    <button onclick="toggleAnswer()">Show/Hide Answer</button>
+  </div>
+
+  <div id="contextMenu">
+    <button onclick="highlightSelection(); hideContextMenu()">Highlight</button>
+  </div>
+
+  <script>
+    document.addEventListener("mouseup", function (e) {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim() !== "") {
+        const contextMenu = document.getElementById("contextMenu");
+        contextMenu.style.top = `${e.pageY}px`;
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.display = "block";
+      } else {
+        hideContextMenu();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!document.getElementById("contextMenu").contains(e.target)) {
+        hideContextMenu();
+      }
+    });
+
+    function hideContextMenu() {
+      document.getElementById("contextMenu").style.display = "none";
     }
-  });
 
-  document.addEventListener("click", function (e) {
-    if (!document.getElementById("contextMenu").contains(e.target)) {
-      hideContextMenu();
+    function highlightSelection() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      const span = document.createElement("span");
+      span.style.backgroundColor = "yellow";
+      span.style.color = "black";
+      span.textContent = selection.toString();
+      range.deleteContents();
+      range.insertNode(span);
+      selection.removeAllRanges();
     }
-  });
 
-  function hideContextMenu() {
-    document.getElementById("contextMenu").style.display = "none";
-  }
+    function toggleAnswer() {
+      const ans = document.getElementById("answer");
+      const userInput = document.getElementById("userInput");
+      const container = document.getElementById("qaContainer");
 
-  function highlightSelection() {
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    const range = selection.getRangeAt(0);
-    const span = document.createElement("span");
-    span.style.backgroundColor = "yellow";
-    span.style.color = "black";
-    span.textContent = selection.toString();
-    range.deleteContents();
-    range.insertNode(span);
-    selection.removeAllRanges();
-  }
-</script>
+      if (ans.style.display === "none") {
+        ans.style.display = "block";
+        container.style.display = "flex";
+        container.style.flexDirection = "row";
+        container.style.alignItems = "flex-start";
+        container.style.gap = "20px";
 
+        ans.style.width = "50%";
+        userInput.style.width = "50%";
+      } else {
+        ans.style.display = "none";
+        container.style.display = "block";
+        userInput.style.width = "90%";
+      }
+    }
+  </script>
 </body>
 </html>
